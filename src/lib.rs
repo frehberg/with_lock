@@ -40,10 +40,9 @@ impl<T> WithLock<T> {
 	///
 	/// let a = WithLock::<i64>::new(Mutex::new(2));
 	/// let b = WithLock::<i64>::new(Mutex::new(3));
-	/// let action_and_get = |s: &mut i32| *s;
+	/// let action_and_get = |s: &mut i64| *s;
 	/// let a_lock = a.with_lock(action_and_get);
 	/// let b_lock = b.with_lock(action_and_get);
-
 	/// assert_eq!(a_lock + b_lock, 5);
 	/// let a_lock_2 = a.with_lock(|s| *s);
 	/// let b_lock_2 = b.with_lock(|s| *s);
@@ -51,8 +50,8 @@ impl<T> WithLock<T> {
 	///
 	/// ```
 	pub fn with_lock<F, U>(&self, function: F) -> U
-	where
-		F: FnOnce(&mut T) -> U,
+		where
+			F: FnOnce(&mut T) -> U,
 	{
 		let lock = self.data.lock();
 		function(&mut *lock.unwrap())
@@ -98,8 +97,8 @@ impl<T> MutexCell<T> {
 	/// ## What is going on
 	/// Locks the mutex and retrieves the value, then unlocks the mutex.
 	pub fn get(&self) -> T
-	where
-		T: Copy,
+		where
+			T: Copy,
 	{
 		self.data.with_lock(|s| *s)
 	}
@@ -108,8 +107,8 @@ impl<T> MutexCell<T> {
 	/// ## What is going on
 	/// Locks the mutex and retrieves the value, then unlocks the mutex.
 	pub fn get_mut(&mut self) -> &mut T
-	where
-		T: Copy,
+		where
+			T: Copy,
 	{
 		self.data.data.get_mut().unwrap()
 	}
@@ -143,8 +142,8 @@ impl<T> MutexCell<T> {
 	/// Calls the `replace` function, and then sets it to `Default::default()`.
 
 	pub fn take(&self) -> T
-	where
-		T: Default,
+		where
+			T: Default,
 	{
 		self.replace(Default::default())
 	}
@@ -167,8 +166,8 @@ mod tests {
 	use crate::*;
 
 	struct SharedData {
-		pub a: i32,
-		pub b: i32,
+		pub a: i64,
+		pub b: i64,
 	}
 
 	#[test]
@@ -176,7 +175,7 @@ mod tests {
 		let a = WithLock::<i64>::new(Mutex::new(2));
 		let b = WithLock::<i64>::new(Mutex::new(3));
 
-		let action_and_get = |s: &mut i32| *s;
+		let action_and_get = |s: &mut i64| *s;
 		let a_lock = a.with_lock(action_and_get);
 		let b_lock = b.with_lock(action_and_get);
 		assert_eq!(a_lock + b_lock, 5);
